@@ -852,6 +852,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mHavePendingMediaKeyRepeatWithWakeLock;
 
     private int mCurrentUserId;
+  // omni gestures
+    private boolean mUseGestureButton;
+    private GestureButton mGestureButton;
+    private boolean mGestureButtonRegistered;
 
     // Maps global key codes to the components that will handle them.
     private GlobalKeyManager mGlobalKeyManager;
@@ -905,7 +909,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int MSG_REQUEST_TRANSIENT_BARS_ARG_STATUS = 0;
     private static final int MSG_REQUEST_TRANSIENT_BARS_ARG_NAVIGATION = 1;
 
-    private class PolicyHandler extends Handler {
+       private class PolicyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -1118,6 +1122,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.VOLUME_BUTTON_MUSIC_CONTROL), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.OMNI_USE_BOTTOM_GESTURE_NAVIGATION), false, this,
                     UserHandle.USER_ALL);
             updateSettings();
         }
@@ -2871,6 +2878,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mVolumeMusicControl = Settings.System.getIntForUser(resolver,
                     Settings.System.VOLUME_BUTTON_MUSIC_CONTROL, 0,
                     UserHandle.USER_CURRENT) != 0;
+            mUseGestureButton = Settings.System.getIntForUser(resolver,
+                    Settings.System.OMNI_USE_BOTTOM_GESTURE_NAVIGATION, 0,
+                    UserHandle.USER_CURRENT) != 0;
         }
 
         synchronized (mWindowManagerFuncs.getWindowManagerLock()) {
@@ -2878,6 +2888,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         if (updateRotation) {
             updateRotation(true);
+        }
+
+        if (mUseGestureButton && !mGestureButtonRegistered) {
+            mGestureButton = new GestureButton(mContext, this);
+            mWindowManagerFuncs.registerPointerEventListener(mGestureButton);
+            mGestureButtonRegistered = true;
+        }
+        if (mGestureButtonRegistered && !mUseGestureButton) {
+            mWindowManagerFuncs.unregisterPointerEventListener(mGestureButton);
+            mGestureButtonRegistered = false;
         }
     }
 
@@ -5068,7 +5088,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return mSearchManager;
     }
 
-    private void preloadRecentApps() {
+    protected void preloadRecentApps() {
         mPreloadedRecentApps = true;
         StatusBarManagerInternal statusbar = getStatusBarManagerInternal();
         if (statusbar != null) {
@@ -5076,7 +5096,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
-    private void cancelPreloadRecentApps() {
+    protected void cancelPreloadRecentApps() {
         if (mPreloadedRecentApps) {
             mPreloadedRecentApps = false;
             StatusBarManagerInternal statusbar = getStatusBarManagerInternal();
@@ -5086,7 +5106,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
-    private void toggleRecentApps() {
+    protected void toggleRecentApps() {
         mPreloadedRecentApps = false; // preloading no longer needs to be canceled
         StatusBarManagerInternal statusbar = getStatusBarManagerInternal();
         if (statusbar != null) {
@@ -5404,7 +5424,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mSystemGestures.screenHeight = displayFrames.mUnrestricted.height();
         mDockLayer = 0x10000000;
         mStatusBarLayer = -1;
-
+        final int displayHeight = displayFrames.mDisplayHeight;
+        final int displayWidth = displayFrames.mDisplayWidth;
+        final int displayRotation = displayFrames.mRotation;
         // start with the current dock rect, which will be (0,0,displayWidth,displayHeight)
         final Rect pf = mTmpParentFrame;
         final Rect df = mTmpDisplayFrame;
@@ -5464,6 +5486,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     displayFrames, pf, df, of, vf, dcf, sysui, isKeyguardShowing);
             if (updateSysUiVisibility) {
                 updateSystemUiVisibilityLw();
+            }
+
+            if (!mHasNavigationBar && mUseGestureButton && mGestureButton != null) {
+                mGestureButton.navigationBarPosition(displayWidth, displayHeight, displayRotation);
             }
         }
         layoutScreenDecorWindows(displayFrames, pf, df, dcf);
@@ -9862,5 +9888,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Message msg = mHandler.obtainMessage(MSG_DISPATCH_VOLKEY_SKIP_TRACK, keyCode, 0);
         msg.setAsynchronous(true);
         mHandler.sendMessageDelayed(msg, ViewConfiguration.getLongPressTimeout());
+}
+ public boolean isGestureButtonRegion(int x, int y) {
+        if (!mUseGestureButton || mGestureButton == null) {
+            return false;
+        }
+        return mGestureButton.isGestureButtonRegion(x, y);
+    }
+     public boolean isGestureButtonEnabled() {
+        return mUseGestureButton;
     }
 }

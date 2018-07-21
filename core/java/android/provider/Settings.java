@@ -4451,6 +4451,19 @@ public final class Settings {
          */
         public static final String VOLUME_BUTTON_MUSIC_CONTROL = "volume_button_music_control";
 
+
+        /**
+         * Double tap on lockscreen to sleep
+         * @hide
+         */
+        public static final String DOUBLE_TAP_SLEEP_LOCKSCREEN =
+                "double_tap_sleep_lockscreen";
+ 	/**
+         * @hide
+         */
+        public static final String OMNI_USE_BOTTOM_GESTURE_NAVIGATION =   "use_bottom_gesture_navigation";
+         /** @hide */
+        
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
@@ -4524,7 +4537,7 @@ public final class Settings {
             STATUSBAR_CLOCK_DATE_DISPLAY,
             STATUSBAR_CLOCK_DATE_STYLE,
             STATUSBAR_CLOCK_DATE_FORMAT
-        };
+           	};
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
@@ -4643,7 +4656,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(OMNI_QS_LAYOUT_ROWS);
 	    PRIVATE_SETTINGS.add(OMNI_QS_LAYOUT_ROWS_LANDSCAPE);
 	    PRIVATE_SETTINGS.add(OMNI_QS_QUICKBAR_COLUMNS);
-            PRIVATE_SETTINGS.add(AMBIENT_RECOGNITION);
+             PRIVATE_SETTINGS.add(AMBIENT_RECOGNITION);
             PRIVATE_SETTINGS.add(AMBIENT_RECOGNITION_KEYGUARD);
             PRIVATE_SETTINGS.add(AMBIENT_RECOGNITION_NOTIFICATION);
             PRIVATE_SETTINGS.add(STATUS_BAR_CLOCK);
@@ -4762,7 +4775,7 @@ public final class Settings {
             VALIDATORS.put(OMNI_QS_LAYOUT_ROWS, OMNI_QS_LAYOUT_ROWS_VALIDATOR);
 	    VALIDATORS.put(OMNI_QS_LAYOUT_ROWS_LANDSCAPE, OMNI_QS_LAYOUT_ROWS_LANDSCAPE_VALIDATOR);
 	    VALIDATORS.put(OMNI_QS_QUICKBAR_COLUMNS, OMNI_QS_QUICKBAR_COLUMNS_VALIDATOR);
-            VALIDATORS.put(AMBIENT_RECOGNITION, AMBIENT_RECOGNITION_VALIDATOR);
+             VALIDATORS.put(AMBIENT_RECOGNITION, AMBIENT_RECOGNITION_VALIDATOR);
             VALIDATORS.put(AMBIENT_RECOGNITION_KEYGUARD, AMBIENT_RECOGNITION_KEYGUARD_VALIDATOR);
             VALIDATORS.put(AMBIENT_RECOGNITION_NOTIFICATION, AMBIENT_RECOGNITION_NOTIFICATION_VALIDATOR);
             VALIDATORS.put(STATUS_BAR_CLOCK, STATUS_BAR_CLOCK_VALIDATOR);
