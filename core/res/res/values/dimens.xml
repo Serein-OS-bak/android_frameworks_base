@@ -703,4 +703,6 @@
     <dimen name="harmful_app_message_padding_bottom">24dp</dimen>
     <!-- Line spacing modifier for the message field of the harmful app dialog -->
     <item name="harmful_app_message_line_spacing_modifier" type="dimen">1.22</item>
+    <dimen name="nav_gesture_swipe_min_length">50dp</dimen>
+    <dimen name="nav_gesture_long_press_max_length">45dp</dimen>
 </resources>
